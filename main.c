@@ -3,10 +3,120 @@
 #endif
 #include <stdio.h>
 #include "include/yaml.h"
+#include <string.h>
 
-int main(void)
-{
-    FILE *fh = fopen("test.yaml", "r");
+
+char *replaceSlash(char *path) {
+    int length = 0;
+    while (path[length] != '\0') {
+        length++;
+    }
+
+    char *replaced = (char *)malloc(length+1);
+    int i;
+    for (i = 0; path[i] != '\0'; i++) {
+        if (path[i] != '\\') {
+            replaced[i] = path[i];
+        } else {
+            replaced[i] = '/';
+        }
+    }
+    replaced[length] = '\0';
+    return replaced;
+}
+
+
+
+void printType(yaml_token_t* token) {
+
+
+    switch(token->type) {
+        /** An empty token. */
+        case YAML_NO_TOKEN:
+            printf("YAML_NO_TOKEN\n");
+            break;
+        case YAML_STREAM_START_TOKEN:
+            printf("YAML_STREAM_START_TOKEN\n");
+            break;
+        case YAML_STREAM_END_TOKEN:
+            printf("YAML_STREAM_END_TOKEN\n");
+            break;
+        case YAML_VERSION_DIRECTIVE_TOKEN:
+            printf("YAML_VERSION_DIRECTIVE_TOKEN\n");
+            break;
+        case YAML_TAG_DIRECTIVE_TOKEN:
+            printf("YAML_TAG_DIRECTIVE_TOKEN\n");
+            break;
+        case YAML_DOCUMENT_START_TOKEN:
+            printf("YAML_DOCUMENT_START_TOKEN\n");
+            break;
+        case YAML_DOCUMENT_END_TOKEN:
+            printf("YAML_DOCUMENT_END_TOKEN\n");
+            break;
+        case YAML_BLOCK_SEQUENCE_START_TOKEN:
+            printf("YAML_BLOCK_SEQUENCE_START_TOKEN\n");
+            break;
+        case YAML_BLOCK_MAPPING_START_TOKEN:
+            printf("YAML_BLOCK_MAPPING_START_TOKEN\n");
+            break;
+        case YAML_BLOCK_END_TOKEN:
+            printf("YAML_BLOCK_END_TOKEN\n");
+            break;
+        case YAML_FLOW_SEQUENCE_START_TOKEN:
+            printf("YAML_FLOW_SEQUENCE_START_TOKEN\n");
+            break;
+        case YAML_FLOW_SEQUENCE_END_TOKEN:
+            printf("YAML_FLOW_SEQUENCE_END_TOKEN\n");
+            break;
+        case YAML_FLOW_MAPPING_START_TOKEN:
+            printf("YAML_FLOW_MAPPING_START_TOKEN\n");
+            break;
+        case YAML_FLOW_MAPPING_END_TOKEN:
+            printf("YAML_FLOW_MAPPING_END_TOKEN\n");
+            break;
+        case YAML_BLOCK_ENTRY_TOKEN:
+            printf("YAML_BLOCK_ENTRY_TOKEN\n");
+            break;
+        case YAML_FLOW_ENTRY_TOKEN:
+            printf("YAML_FLOW_ENTRY_TOKEN\n");
+            break;
+        case YAML_KEY_TOKEN:
+            printf("YAML_KEY_TOKEN\n");
+            break;
+        case YAML_VALUE_TOKEN:
+            printf("YAML_VALUE_TOKEN\n");
+            break;
+        case YAML_ALIAS_TOKEN:
+            printf("YAML_ALIAS_TOKEN\n");
+            break;
+        case YAML_TAG_TOKEN:
+            printf("YAML_TAG_TOKEN\n");
+            break;
+        case YAML_SCALAR_TOKEN:
+            printf("YAML_SCALAR_TOKEN\n");
+            break;
+        default:
+            printf("Token type: not found...\n");
+            break;
+    }
+}
+
+
+
+
+int main(int arg, char *argv[]) {
+    char *paths = "paths";
+
+    for (int i = 0; i<arg; i++) {
+        printf("arg %d: %s \n", i, argv[i]);
+    }
+
+    char *xdPath = replaceSlash(argv[0]);
+
+    char *fileName = "test.yml";
+    int catLen = strlen(xdPath) +  strlen(fileName);
+    char *yamlPath = (char *)malloc(catLen+1);
+    FILE *fh = fopen(0, "r");
     yaml_parser_t parser;
     yaml_token_t token;
 
@@ -19,52 +129,50 @@ int main(void)
     /* Set input file */
     yaml_parser_set_input_file(&parser, fh);
 
-    /* CODE HERE */
-    /* BEGIN new code */
+    int depth = 0;
+    int found = 0;
+    int argPos = 0;
     do {
         yaml_parser_scan(&parser, &token);
-        switch(token.type)
-        {
-            /* Stream start/end */
-            case YAML_STREAM_START_TOKEN:
-                puts("STREAM START");
-                break;
-            case YAML_STREAM_END_TOKEN:
-                puts("STREAM END");
-                break;
-            /* Token types (read before actual token) */
-            case YAML_KEY_TOKEN:
-                printf("(Key token)   ");
-                break;
-            case YAML_VALUE_TOKEN:
-                printf("(Value token) ");
-                break;
-            /* Block delimeters */
-            case YAML_BLOCK_SEQUENCE_START_TOKEN:
-                puts("Start Block (Sequence)");
-                break;
-            case YAML_BLOCK_ENTRY_TOKEN:
-                puts("Start Block (Entry)");
-                break;
-            case YAML_BLOCK_END_TOKEN:
-                puts("End block");
-                break;
-            /* Data */
-            case YAML_BLOCK_MAPPING_START_TOKEN:
-                puts("[Block mapping]");
-                break;
-            case YAML_SCALAR_TOKEN:
-                printf("scalar %s \n", token.data.scalar.value);
-                break;
-            /* Others */
-            default:
-              printf("Got token of type %d\n", token.type);
+        printType(&token);
+        // switch(token.type) {
+        //     case YAML_KEY_TOKEN:
+        //         printf("Key:  \t");
+        //         break;
+        //     case YAML_VALUE_TOKEN:
+        //         printf("Value:\t");
+        //         break;
+        //     case YAML_SCALAR_TOKEN:
+        //         printf("%s at %d \n", token.data.scalar.value, depth);
+        //         // if(depth == found && strcmp((char *)token.data.scalar.value,
+        //         //             args[argPos]) == 0) {
+        //         //     return 1;
+        //         // }
+        //         break;
+        //     case YAML_BLOCK_SEQUENCE_START_TOKEN:
+        //         printf("Block sequence entry\n");
+        //         depth++;
+        //     case YAML_BLOCK_MAPPING_START_TOKEN:
+        //         printf("Block mapppping entry\n");
+        //         depth++;
+        //     case YAML_BLOCK_ENTRY_TOKEN:
+        //         printf("Block entry\n");
+        //         depth++;
+        //     case YAML_BLOCK_END_TOKEN:
+        //         printf("BLOCK END token here\n");
+        //         depth--;
+        //     default:
+        //         break;
+        // }
+        if(token.type != YAML_STREAM_END_TOKEN) {
+            yaml_token_delete(&token);
         }
-        if(token.type != YAML_STREAM_END_TOKEN)
-          yaml_token_delete(&token);
     } while(token.type != YAML_STREAM_END_TOKEN);
+    printf("Result: %d", found);
+
+    // Delete token
     yaml_token_delete(&token);
-    /* END new code */
+
     /* Cleanup */
     yaml_parser_delete(&parser);
     fclose(fh);
